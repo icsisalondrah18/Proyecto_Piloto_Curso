@@ -1,0 +1,118 @@
+﻿@page
+@model Proyecto_Piloto_Curso.Pages.Admin.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard Admin";
+}
+
+<div class="container mt-4">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold" style="color: #093C5D;">Panel de Administración</h1>
+        <p class="lead text-secondary">Bienvenido al centro de control de la plataforma</p>
+    </div>
+
+    <!-- Tarjetas de estadísticas -->
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card text-white text-center" style="background-color: #093C5D;">
+                <div class="card-body py-4">
+                    <i class="bi bi-journal-bookmark-fill display-1"></i>
+                    <h2 class="mt-2">@Model.TotalCursos</h2>
+                    <h6>Total Cursos</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white text-center" style="background-color: #3B7597;">
+                <div class="card-body py-4">
+                    <i class="bi bi-people-fill display-1"></i>
+                    <h2 class="mt-2">@Model.TotalUsuarios</h2>
+                    <h6>Total Usuarios</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white text-center" style="background-color: #2a5a75;">
+                <div class="card-body py-4">
+                    <i class="bi bi-person-badge-fill display-1"></i>
+                    <h2 class="mt-2">@Model.TotalDocentes</h2>
+                    <h6>Total Docentes</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white text-center" style="background-color: #e6a017;">
+                <div class="card-body py-4">
+                    <i class="bi bi-graph-up display-1"></i>
+                    <h2 class="mt-2">@Model.TotalInscripciones</h2>
+                    <h6>Inscripciones</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mt-4 g-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Acciones rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <a href="/Admin/GestionCursos" class="btn btn-primary w-100 mb-2">Gestionar Cursos</a>
+                    <a href="/Admin/GestionUsuarios" class="btn btn-outline-primary w-100">Gestionar Usuarios</a>
+                </div>
+            </div>
+
+            <!-- Reportes -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Reportes Administrativos</h5>
+                    <div class="card-body">
+                        <a href="/Admin/Dashboard?handler=ExportarCursosPdf" target="_blank"
+                           class="btn w-100 mb-2 text-white"
+                           style="background-color: #215B63; border-color: #215B63;">
+                            Exportar Reporte de Cursos PDF
+                        </a>
+
+                        <a href="/Admin/Dashboard?handler=ExportarUsuariosPdf" target="_blank"
+                           class="btn w-100 mb-2 text-white"
+                           style="background-color: #35858E; border-color: #35858E;">
+                            Exportar Reporte de Usuarios PDF
+                        </a>
+
+                        <a href="/Admin/Dashboard?handler=ExportarInscripcionesPdf" target="_blank"
+                           class="btn w-100 text-white"
+                           style="background-color: #294669; border-color: #294669;">
+                            Exportar Reporte de Inscripciones PDF
+                        </a>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Columna derecha: Cursos Recientes -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Cursos Recientes</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.CursosRecientes.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var curso in Model.CursosRecientes)
+                            {
+                                <li class="list-group-item">@curso.titulo</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-3">No hay cursos recientes</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

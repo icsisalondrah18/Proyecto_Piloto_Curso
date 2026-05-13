@@ -1,0 +1,71 @@
+﻿@page
+@model Proyecto_Piloto_Curso.Pages.RegistroModel
+@{
+    ViewData["Title"] = "Registro de Usuario";
+}
+
+<div class="container" style="min-height: 80vh; display: flex; align-items: center;">
+    <div class="row justify-content-center w-100">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0" style="border-radius: 20px;">
+                <div class="card-header bg-transparent border-0 text-center pt-4">
+                    <h2 class="fw-bold" style="color: #093C5D;">Crear Cuenta</h2>
+                    <p class="text-muted">Completa el formulario para registrarte</p>
+                </div>
+                <div class="card-body p-4">
+                    @if (!string.IsNullOrEmpty(Model.MensajeExito))
+                    {
+                        <div class="alert alert-success text-center">@Model.MensajeExito</div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.MensajeError))
+                    {
+                        <div class="alert alert-danger text-center">@Model.MensajeError</div>
+                    }
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label asp-for="NuevoUsuario.username" class="form-label fw-bold small">Nombre de usuario</label>
+                            <input asp-for="NuevoUsuario.username" class="form-control" placeholder="Usuario" required />
+                            <span asp-validation-for="NuevoUsuario.username" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NuevoUsuario.nombre" class="form-label fw-bold small">Nombre completo</label>
+                            <input asp-for="NuevoUsuario.nombre" class="form-control" placeholder="Nombres y Apellidos" required />
+                            <span asp-validation-for="NuevoUsuario.nombre" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NuevoUsuario.correo" class="form-label fw-bold small">Correo electrónico</label>
+                            <input asp-for="NuevoUsuario.correo" class="form-control" placeholder="ejemplo@correo.com" required />
+                            <span asp-validation-for="NuevoUsuario.correo" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NuevoUsuario.contrasena" class="form-label fw-bold small">Contraseña</label>
+                            <input asp-for="NuevoUsuario.contrasena" type="password" class="form-control" placeholder="********" required />
+                            <span asp-validation-for="NuevoUsuario.contrasena" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="NuevoUsuario.rol" class="form-label fw-bold small">Tipo de usuario</label>
+                            <select asp-for="NuevoUsuario.rol" class="form-select">
+                                <option value="estudiante">Estudiante</option>
+                                <option value="docente">Docente</option>
+                            </select>
+                            <span asp-validation-for="NuevoUsuario.rol" class="text-danger small"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2">
+                            Registrarse
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="small">¿Ya tienes cuenta? <a href="/Login" class="fw-bold text-decoration-none" style="color: #3B7597;">Inicia Sesión</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

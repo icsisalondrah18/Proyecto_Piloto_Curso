@@ -1,0 +1,230 @@
+﻿@page
+@using Proyecto_Piloto_Curso.Helpers
+@model Proyecto_Piloto_Curso.Pages.CursosModel
+@{
+    ViewData["Title"] = "Catálogo de Cursos";
+}
+
+<section class="hero-section text-white text-center py-5">
+    <div class="container py-5">
+        <h1 class="display-3 fw-bold mb-3">Encuentra tu <span class="text-warning">curso ideal</span></h1>
+        <p class="lead mb-4">Más de @Model.TotalRegistros cursos disponibles en diferentes categorías<br> ¡Comienza a aprender hoy mismo!</p>
+    </div>
+</section>
+
+<section class="container my-5">
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-5">
+            <label class="form-label fw-bold">Filtrar por categoría</label>
+            <select id="filtroCategoria" class="form-select shadow-sm">
+                <option value="0">Todos los cursos</option>
+                @foreach (var cat in Model.CategoriasList)
+                {
+                    if (Model.CategoriaFiltro.HasValue && Model.CategoriaFiltro.Value == cat.idCat)
+                    {
+                        <option value="@cat.idCat" selected>@cat.nombre</option>
+                    }
+                    else
+                    {
+                        <option value="@cat.idCat">@cat.nombre</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Filtrar por precio</label>
+            <select id="filtroPrecio" class="form-select shadow-sm">
+                @if (Model.PrecioFiltro == "todos")
+                {
+                    <option value="todos" selected>Todos</option>
+                }
+                else
+                {
+                    <option value="todos">Todos</option>
+                }
+
+                @if (Model.PrecioFiltro == "gratis")
+                {
+                    <option value="gratis" selected>Gratis</option>
+                }
+                else
+                {
+                    <option value="gratis">Gratis</option>
+                }
+
+                @if (Model.PrecioFiltro == "pago")
+                {
+                    <option value="pago" selected>De pago</option>
+                }
+                else
+                {
+                    <option value="pago">De pago</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    
+    <div class="row" id="contenedorCursos">
+        @if (Model.CursosList.Any())
+        {
+            @foreach (var curso in Model.CursosList)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <span class="badge bg-primary-custom mb-2">@(curso.CategoriaNavigation?.nombre ?? "Sin categoría")</span>
+                            <h5 class="card-title fw-bold">@curso.titulo</h5>
+                            <p class="card-text text-secondary small">@curso.descripcion</p>
+                            <div class="mt-2">
+                                <small class="text-muted">Instructor: @(curso.DocenteNavigation?.UsuarioNavigation?.nombre ?? "Profesional")</small>
+                            </div>
+                            <hr />
+                            <div class="d-flex justify-content-between align-items-center">
+                                @if (curso.precio == 0)
+                                {
+                                    <span class="badge bg-success">Gratis</span>
+                                }
+                                else
+                                {
+                                    <span class="fw-bold text-primary-custom">@curso.precio.ToUSD()</span>
+                                }
+                                <a href="/CursoDetalle?id=@curso.idCursos" class="btn btn-outline-primary btn-sm rounded-pill">Ver detalles</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <h3 class="mt-3">No hay cursos que coincidan con los filtros</h3>
+                <button id="btnLimpiarFiltros" class="btn btn-primary mt-3">Limpiar filtros</button>
+            </div>
+        }
+    </div>
+
+    <!-- Paginación -->
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav aria-label="Paginación de cursos" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                    <a class="page-link" href="#" data-pagina="1" style="border-radius: 50%; margin: 0 3px;">&laquo;</a>
+                </li>
+                <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                    <a class="page-link" href="#" data-pagina="@(Model.PaginaActual - 1)" style="border-radius: 50%; margin: 0 3px;">&lsaquo;</a>
+                </li>
+
+                @{
+                    int inicio = Math.Max(1, Model.PaginaActual - 2);
+                    int fin = Math.Min(Model.TotalPaginas, Model.PaginaActual + 2);
+
+                    if (inicio > 1)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+
+                    for (int i = inicio; i <= fin; i++)
+                    {
+                        var esActiva = (i == Model.PaginaActual);
+                        var claseActiva = esActiva ? "active" : "";
+                        var colorFondo = esActiva ? "#3B7597" : "white";
+                        var colorTexto = esActiva ? "white" : "#3B7597";
+
+                        <li class="page-item @claseActiva" style="margin: 0 3px;">
+                            <a class="page-link rounded-circle shadow-sm border-0"
+                               href="#"
+                               data-pagina="@i"
+                               style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background-color: @colorFondo; color: @colorTexto;">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    if (fin < Model.TotalPaginas)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+                }
+
+                <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                    <a class="page-link" href="#" data-pagina="@(Model.PaginaActual + 1)" style="border-radius: 50%; margin: 0 3px;">&rsaquo;</a>
+                </li>
+                <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                    <a class="page-link" href="#" data-pagina="@Model.TotalPaginas" style="border-radius: 50%; margin: 0 3px;">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+    }
+
+    
+    <div class="text-muted text-center mt-3">
+        Mostrando @Model.CursosList.Count de @Model.TotalRegistros cursos
+    </div>
+</section>
+
+<script>
+    
+    function aplicarFiltros() {
+        const categoria = document.getElementById('filtroCategoria').value;
+        const precio = document.getElementById('filtroPrecio').value;
+
+        let url = '/Cursos?';
+
+        if (categoria && categoria !== '0') {
+            url += 'categoria=' + categoria + '&';
+        }
+
+        if (precio && precio !== 'todos') {
+            url += 'precio=' + precio + '&';
+        }
+
+        url += 'p=1';
+
+        window.location.href = url;
+    }
+
+    
+    function irPagina(pagina) {
+        const categoria = document.getElementById('filtroCategoria').value;
+        const precio = document.getElementById('filtroPrecio').value;
+
+        let url = '/Cursos?p=' + pagina;
+
+        if (categoria && categoria !== '0') {
+            url += '&categoria=' + categoria;
+        }
+
+        if (precio && precio !== 'todos') {
+            url += '&precio=' + precio;
+        }
+
+        window.location.href = url;
+    }
+
+    
+    document.getElementById('filtroCategoria').addEventListener('change', aplicarFiltros);
+    document.getElementById('filtroPrecio').addEventListener('change', aplicarFiltros);
+
+    
+    document.querySelectorAll('.page-link[data-pagina]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const pagina = this.getAttribute('data-pagina');
+            if (pagina && !this.parentElement.classList.contains('disabled')) {
+                irPagina(pagina);
+            }
+        });
+    });
+
+    
+    const btnLimpiar = document.getElementById('btnLimpiarFiltros');
+    if (btnLimpiar) {
+        btnLimpiar.addEventListener('click', function() {
+            window.location.href = '/Cursos';
+        });
+    }
+</script>

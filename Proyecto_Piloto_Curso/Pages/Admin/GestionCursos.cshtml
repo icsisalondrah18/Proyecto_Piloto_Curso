@@ -1,0 +1,114 @@
+﻿@page
+@using Proyecto_Piloto_Curso.Helpers
+@model Proyecto_Piloto_Curso.Pages.Admin.GestionCursosModel
+@{
+    ViewData["Title"] = "Gestionar Cursos";
+    var usuarioRol = HttpContext.Session.GetString("UsuarioRol");
+}
+
+@if (usuarioRol != "admin")
+{
+    <div class="container mt-5">
+        <div class="alert alert-danger text-center">
+            <h3>Acceso denegado</h3>
+            <p>No tienes permisos para ver esta pagina</p>
+            <a href="/" class="btn btn-primary">Volver al inicio</a>
+        </div>
+    </div>
+    return;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold" style="color: #093C5D;">Gestion de Cursos</h1>
+            <p class="text-muted">Administra todos los cursos de la plataforma</p>
+        </div>
+        <div>
+            <a href="/Admin/GestionCursos" class="btn btn-secondary me-2">Actualizar</a>
+            <a href="/Admin/CrearCurso" class="btn btn-primary">Nuevo Curso</a>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.MensajeExito))
+    {
+        <div class="alert alert-success">@Model.MensajeExito</div>
+    }
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-9">
+                    <input type="text" name="busqueda" class="form-control"
+                           placeholder="Buscar por titulo o categoria..."
+                           value="@Model.BusquedaActual" />
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Titulo</th>
+                            <th>Categoria</th>
+                            <th>Precio</th>
+                            <th>Docente</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var curso in Model.Cursos)
+                        {
+                            <tr>
+                                <td>@curso.idCursos</td>
+                                <td>@curso.titulo</td>
+                                <td>@(curso.CategoriaNavigation?.nombre ?? "Sin categoria")</td>
+                                <td>@(curso.precio == 0 ? "Gratis" : curso.precio.ToString("C"))</td>
+                                <td>@(curso.DocenteNavigation?.UsuarioNavigation?.nombre ?? "Sin docente")</td>
+                                <td>
+                                    <a href="/Admin/EditarCurso?id=@curso.idCursos" class="btn btn-sm btn-warning">Editar</a>
+                                    <form method="post" asp-page-handler="Eliminar" style="display:inline" onsubmit="return confirm('¿Eliminar este curso?');">
+                                        <input type="hidden" name="id" value="@curso.idCursos" />
+                                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                    <a class="page-link" href="?pagina=@(Model.PaginaActual - 1)&busqueda=@Model.BusquedaActual">Anterior</a>
+                </li>
+                @for (int i = 1; i <= Model.TotalPaginas; i++)
+                {
+                    <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                        <a class="page-link" href="?pagina=@i&busqueda=@Model.BusquedaActual">@i</a>
+                    </li>
+                }
+                <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                    <a class="page-link" href="?pagina=@(Model.PaginaActual + 1)&busqueda=@Model.BusquedaActual">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    }
+
+    <div class="text-muted text-center mt-3">
+        Mostrando @Model.Cursos.Count de @Model.TotalRegistros cursos
+    </div>
+</div>

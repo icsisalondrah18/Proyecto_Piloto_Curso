@@ -1,0 +1,83 @@
+﻿@page
+@model Proyecto_Piloto_Curso.Pages.Docente.EstudiantesCursoModel
+@{
+    ViewData["Title"] = "Estudiantes del Curso";
+}
+
+@if (Model.UsuarioRol != "docente" && Model.UsuarioRol != "admin")
+{
+    <div class="container mt-5">
+        <div class="alert alert-danger text-center">
+            <h3>Acceso denegado</h3>
+            <a href="/" class="btn btn-primary">Volver al inicio</a>
+        </div>
+    </div>
+    return;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold" style="color: #093C5D;">Estudiantes Inscritos</h1>
+            <h5 class="text-muted">Curso: @Model.CursoTitulo</h5>
+        </div>
+        <a href="/Docente/MisCursos" class="btn btn-secondary">Volver a mis cursos</a>
+    </div>
+
+    @if (Model.Estudiantes == null || !Model.Estudiantes.Any())
+    {
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-person-x display-4"></i>
+            <h3>No hay estudiantes inscritos</h3>
+            <p>Todavía no hay estudiantes inscritos en este curso.</p>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Estudiante</th>
+                                <th>Correo</th>
+                                <th>Fecha Inscripción</th>
+                                <th>Progreso</th>
+                                <th>Calificación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var est in Model.Estudiantes)
+                            {
+                                <tr>
+                                    <td><i class="bi bi-person-circle"></i> @est.NombreEstudiante</td>
+                                    <td>@est.Correo</td>
+                                    <td>@est.FechaInscripcion.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress flex-grow-1" style="height: 8px;">
+                                                <div class="progress-bar" role="progressbar" style="width: @est.Progreso%; background-color: #3B7597;"></div>
+                                            </div>
+                                            <span class="ms-2 small">@est.Progreso%</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (est.Calificacion > 0)
+                                        {
+                                            <span class="badge bg-warning text-dark">@est.Calificacion / 5</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Sin calificar</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

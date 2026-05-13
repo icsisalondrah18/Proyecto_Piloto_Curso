@@ -1,0 +1,107 @@
+﻿@page
+@using Proyecto_Piloto_Curso.Helpers
+@model IndexModel
+@{
+    ViewData["Title"] = "Inicio - CursosOnline";
+}
+
+<!-- Hero Section -->
+<section class="hero-section text-white text-center py-5">
+    <div class="container py-5">
+        <h1 class="display-3 fw-bold mb-3">Aprende con los Mejores<br> <span class="text-warning">Cursos con Certificado</span></h1>
+        <p class="lead mb-4">Estudia online desde cualquier lugar, a tu ritmo y sin limites de tiempo.<br> Obtén un certificado oficial al finalizar.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="/Registro" class="btn btn-warning btn-lg px-4 py-2 fw-bold shadow-sm">Crear cuenta gratis</a>
+            <a href="/Cursos" class="btn btn-outline-light btn-lg px-4 py-2 fw-bold shadow-sm">Explorar catálogo</a>
+        </div>
+        <p class="mt-4 small text-white-50">Acceso gratis por siempre, sin limites de tiempo.</p>
+    </div>
+</section>
+
+<!-- Beneficios -->
+<section class="benefits-section py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Ventajas de <span class="text-primary-custom">estudiar con nosotros</span></h2>
+            <p class="lead text-secondary">Miles de estudiantes ya confían en nuestra plataforma</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-3">
+                    <div class="card-body">
+                        <div class="text-primary-custom mb-3">
+                            <i class="bi bi-clock-history display-1"></i>
+                        </div>
+                        <h4 class="fw-bold">Aprende a tu ritmo</h4>
+                        <p class="text-secondary">Acceso ilimitado a todos los cursos, sin horarios fijos.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-3">
+                    <div class="card-body">
+                        <div class="text-primary-custom mb-3">
+                            <i class="bi bi-person-badge display-1"></i>
+                        </div>
+                        <h4 class="fw-bold">Profesores expertos</h4>
+                        <p class="text-secondary">Aprende de profesionales con amplia experiencia.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-3">
+                    <div class="card-body">
+                        <div class="text-primary-custom mb-3">
+                            <i class="bi bi-award display-1"></i>
+                        </div>
+                        <h4 class="fw-bold">Certificado oficial</h4>
+                        <p class="text-secondary">Obtén certificados que validan tus conocimientos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Cursos Destacados -->
+<section class="container my-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Cursos <span class="text-primary-custom">Destacados</span></h2>
+        <p class="lead text-secondary">Los cursos más populares de nuestra plataforma</p>
+    </div>
+    <div class="row">
+        @foreach (var curso in Model.CursosDestacados)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <span class="badge bg-primary-custom mb-2">@curso.CategoriaNavigation?.nombre</span>
+                        <h5 class="card-title fw-bold">@curso.titulo</h5>
+                        <p class="card-text text-secondary small">@curso.descripcion</p>
+                        <hr />
+                        <div class="d-flex justify-content-between align-items-center">
+                            @if (curso.precio == 0)
+                            {
+                                <span class="badge bg-success">Gratis</span>
+                            }
+                            else
+                            {
+                                <span class="fw-bold text-primary-custom">@curso.precio.ToUSD()</span>
+                            }
+                            <a href="/CursoDetalle?id=@curso.idCursos" class="btn btn-outline-primary btn-sm">Ver detalles</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Llamada a la acción -->
+<section class="hero-section text-white text-center py-5 mt-4">
+    <div class="container">
+        <h2 class="fw-bold mb-3">¿Listo para comenzar tu aprendizaje?</h2>
+        <p class="lead mb-4">Únete a miles de estudiantes que ya están aprendiendo con nosotros</p>
+        <a href="/Cursos" class="btn btn-primary px-4">Ver todos los cursos</a>
+    </div>
+</section>

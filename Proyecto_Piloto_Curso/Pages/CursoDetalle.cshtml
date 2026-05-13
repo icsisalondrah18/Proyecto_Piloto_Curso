@@ -1,0 +1,451 @@
+﻿@page
+@using Proyecto_Piloto_Curso.Helpers
+@model Proyecto_Piloto_Curso.Pages.CursoDetalleModel
+@{
+    ViewData["Title"] = Model.Curso?.titulo ?? "Curso";
+}
+
+<div class="container mt-4">
+    @if (Model.Curso == null)
+    {
+        <div class="alert alert-danger">Curso no encontrado</div>
+        return;
+    }
+
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["MensajeExito"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["MensajeError"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> @TempData["MensajeError"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/Cursos">Catálogo</a></li>
+                    <li class="breadcrumb-item active">@Model.Curso.titulo</li>
+                </ol>
+            </nav>
+
+            <h1 class="display-5 fw-bold">@Model.Curso.titulo</h1>
+            <span class="badge bg-primary fs-6 p-2">@Model.Curso.CategoriaNavigation?.nombre</span>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Columna principal -->
+        <div class="col-md-8">
+            <!-- Descripción -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h3>Descripción</h3>
+                    <p class="lead">@Model.Curso.descripcion</p>
+                </div>
+            </div>
+
+            <!-- Objetivos -->
+            @if (Model.Objetivos != null && Model.Objetivos.Any())
+            {
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h3>Objetivos del curso</h3>
+                        <ul class="list-unstyled row">
+                            @foreach (var obj in Model.Objetivos)
+                            {
+                                <li class="col-md-6 mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i> @obj.descripcion
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+
+            <!-- Módulos -->
+            <div class="card shadow-sm overflow-hidden">
+                <div class="card-header bg-white">
+                    <h3 class="mb-0">Contenido del curso</h3>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.Modulos != null && Model.Modulos.Any())
+                    {
+                        <div class="accordion" id="accordionModulos">
+                            @for (int i = 0; i < Model.Modulos.Count; i++)
+                            {
+                                var mod = Model.Modulos[i];
+                                var collapseId = "collapse_" + i + "_" + Model.Curso.idCursos;
+
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button @(i > 0 ? "collapsed" : "")"
+                                                type="button"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#@collapseId"
+                                                aria-expanded="@(i == 0 ? "true" : "false")"
+                                                aria-controls="@collapseId">
+                                            <div class="d-flex justify-content-between w-100 me-3">
+                                                <span><strong>Módulo @(i + 1):</strong> @mod.titulo</span>
+                                                <span class="text-muted">
+                                                    @if (mod.duracion > 0)
+                                                    {
+                                                        <i class="bi bi-clock"></i>
+                                                        @mod.duracion <text>min</text>
+                                                    }
+                                                </span>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="@collapseId"
+                                         class="accordion-collapse collapse @(i == 0 ? "show" : "")"
+                                         data-bs-parent="#accordionModulos">
+                                        <div class="accordion-body pt-3">
+                                            <p><strong>Tipo:</strong> @mod.tipo_contenido</p>
+                                            @if (mod.tipo_contenido == "texto")
+                                            {
+                                                <div class="alert alert-info">
+                                                    <i class="bi bi-journal-text"></i> Contenido teórico disponible en el material del curso.
+                                                </div>
+                                            }
+                                            else if (mod.tipo_contenido == "quiz")
+                                            {
+                                                <div class="alert alert-warning">
+                                                    <i class="bi bi-question-circle"></i> Evaluación de conocimientos al finalizar el módulo.
+                                                </div>
+                                            }
+                                            else if (!string.IsNullOrEmpty(mod.url_video))
+                                            {
+                                                <div class="ratio ratio-16x9">
+                                                    <iframe src="@mod.url_video" title="@mod.titulo" allowfullscreen></iframe>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="alert alert-info">
+                                                    <i class="bi bi-info-circle"></i> Contenido en preparación
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-folder2-open display-6 text-muted"></i>
+                            <p class="text-muted mt-2">Este curso aún no tiene módulos disponibles.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Reseñas -->
+            <div class="card shadow-sm mt-4 overflow-hidden">
+                <div class="card-header bg-white">
+                    <h3 class="mb-0">Reseñas de estudiantes</h3>
+                </div>
+                <div class="card-body">
+                    @if (Model.Resenas != null && Model.Resenas.Any())
+                    {
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="text-center">
+                                    <div class="display-4 fw-bold text-warning">@Model.PromedioCalificacion.ToString("0.0")</div>
+                                    <div class="text-muted">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            if (i <= Math.Round(Model.PromedioCalificacion))
+                                            {
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                            }
+                                            else if (i - 0.5 <= Model.PromedioCalificacion)
+                                            {
+                                                <i class="bi bi-star-half text-warning"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-star text-warning"></i>
+                                            }
+                                        }
+                                    </div>
+                                    <small class="text-muted">@Model.Resenas.Count calificaciones</small>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        @foreach (var resena in Model.Resenas)
+                        {
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>@(resena.UsuarioNavigation?.nombre ?? "Anónimo")</strong>
+                                        <div class="text-warning small">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                if (i <= resena.calificacion)
+                                                {
+                                                    <i class="bi bi-star-fill"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-star"></i>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">@resena.fecha_creacion.ToString("dd/MM/yyyy")</small>
+                                </div>
+                                <p class="mt-2 mb-0">@resena.comentario</p>
+                                <hr class="my-2" />
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-4">
+                            <i class="bi bi-chat-dots display-6"></i><br />
+                            Aún no hay reseñas para este curso. ¡Sé el primero en calificar!
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra lateral -->
+        <div class="col-md-4">
+            <div class="card shadow-sm sticky-top" style="top: 90px; z-index: 1;">
+                <div class="card-body">
+                    <h2 class="text-center mb-3">
+                        @if (Model.Curso.precio == 0)
+                        {
+                            <span class="text-success">GRATIS</span>
+                        }
+                        else
+                        {
+                            <span class="text-primary">@Model.Curso.precio.ToUSD()</span>
+                        }
+                    </h2>
+
+                    <hr />
+
+                    <div class="mb-3">
+                        <h5>Instructor</h5>
+                        <p class="mb-0 fw-bold">@Model.NombreInstructor</p>
+                        <small class="text-muted">Área: @Model.AreaInstructor</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5>Información</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-book"></i> @(Model.Modulos?.Count ?? 0) módulos</li>
+                            <li><i class="bi bi-bullseye"></i> @(Model.Objetivos?.Count ?? 0) objetivos</li>
+                            <li><i class="bi bi-people"></i> @Model.CantidadInscritos inscritos</li>
+                            <li>
+                                <i class="bi bi-star text-warning"></i>
+                                @Model.PromedioCalificacion.ToString("0.0") estrellas
+                                @if (Model.Resenas != null && Model.Resenas.Any())
+                                {
+                                    <span class="text-muted small">(@Model.Resenas.Count reseñas)</span>
+                                }
+                            </li>
+                        </ul>
+                    </div>
+
+                    <hr />
+
+                    @if (Model.EstaInscrito)
+                    {
+                        <div class="alert alert-success text-center">
+                            <i class="bi bi-check-circle-fill"></i> Ya estás inscrito en este curso
+                        </div>
+                        <a href="#" class="btn btn-primary w-100">
+                            <i class="bi bi-play-circle"></i> Continuar aprendiendo
+                        </a>
+                    }
+                    else if (Model.Curso.precio == 0)
+                    {
+                        <form method="post" asp-page-handler="Inscribirse">
+                            <input type="hidden" name="cursoId" value="@Model.Curso.idCursos" />
+                            <button type="submit" class="btn btn-success w-100 py-2">
+                                Inscribirme Gratis
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-primary w-100 py-2 fw-bold"
+                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;"
+                                onclick="abrirModalPago(@Model.Curso.idCursos, '@Model.Curso.titulo', @Model.Curso.precio)">
+                            Comprar Ahora - @Model.Curso.precio.ToUSD()
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Pago -->
+<div class="modal fade" id="modalPago" tabindex="-1" aria-labelledby="modalPagoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h5 class="modal-title text-white" id="modalPagoLabel">
+                    Método de Pago
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="ProcesarPago" id="formPago">
+                <input type="hidden" name="cursoId" id="cursoIdPago" />
+                <div class="modal-body p-4">
+                    <div class="alert alert-info bg-light border-0">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">Curso:</span>
+                            <span id="cursoTituloPago" class="fw-bold"></span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-bold">Total a pagar:</span>
+                            <span id="cursoPrecioPago" class="fw-bold text-success fs-5"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            Seleccionar tarjeta guardada
+                        </label>
+                        <select name="tarjetaId" id="selectTarjeta" class="form-select form-select-lg" required>
+                            <option value="">-- Seleccione un método de pago --</option>
+                            @if (Model.Tarjetas != null && Model.Tarjetas.Any())
+                            {
+                                foreach (var tarjeta in Model.Tarjetas)
+                                {
+                                    <option value="@tarjeta.idTarjeta" data-tipo="@tarjeta.tipo_tarjeta">
+                                        @{
+                                            string icono = tarjeta.tipo_tarjeta == "Visa" ? "Visa" : (tarjeta.tipo_tarjeta == "Mastercard" ? "Mastercard" : "Amex");
+                                        }
+                                        @icono @tarjeta.tipo_tarjeta •••• @tarjeta.numero_tarjeta?.Substring(tarjeta.numero_tarjeta.Length - 4)
+                                        - @tarjeta.nombre_titular (Expira: @tarjeta.fecha_expiracion)
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="text-center my-2">
+                        <span class="text-muted">o</span>
+                    </div>
+
+                    <div class="text-center mb-3">
+                        <a href="/MetodosPago" class="btn btn-outline-primary w-100">
+                            Usar una tarjeta nueva
+                        </a>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" id="cvvLabel">
+                            Código de seguridad (CVV)
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-lock"></i>
+                            </span>
+                            <input type="password" name="cvv" id="cvvInput" class="form-control"
+                                   placeholder="123" maxlength="3" required />
+                        </div>
+                        <small class="text-muted" id="cvvHint">Código de 3 dígitos en el reverso de tu tarjeta</small>
+                    </div>
+
+                    <hr />
+
+                    <div class="alert alert-success small mb-0">
+                        <strong>Pago 100% seguro</strong> - Este es un sistema de demostración
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success px-4">
+                        Pagar Ahora
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function abrirModalPago(cursoId, titulo, precio) {
+            document.getElementById('cursoIdPago').value = cursoId;
+            document.getElementById('cursoTituloPago').innerText = titulo;
+            document.getElementById('cursoPrecioPago').innerText = '$' + parseFloat(precio).toFixed(2);
+            document.getElementById('cvvInput').value = '';
+            var modal = new bootstrap.Modal(document.getElementById('modalPago'));
+            modal.show();
+        }
+
+        var selectTarjeta = document.getElementById('selectTarjeta');
+        var cvvInput = document.getElementById('cvvInput');
+        var cvvHint = document.getElementById('cvvHint');
+        var cvvLabel = document.getElementById('cvvLabel');
+
+        if (selectTarjeta) {
+            selectTarjeta.addEventListener('change', function() {
+                var selectedOption = this.options[this.selectedIndex];
+                var tipo = selectedOption.getAttribute('data-tipo');
+
+                if (tipo === 'Amex') {
+                    cvvInput.placeholder = '1234';
+                    cvvInput.maxLength = 4;
+                    cvvHint.innerHTML = 'Código de 4 dígitos ubicado en el FRENTE de la tarjeta';
+                    cvvLabel.innerHTML = 'CID (4 dígitos)';
+                } else {
+                    cvvInput.placeholder = '123';
+                    cvvInput.maxLength = 3;
+                    cvvHint.innerHTML = 'Código de 3 dígitos en el REVERSO de la tarjeta';
+                    cvvLabel.innerHTML = 'CVV (3 dígitos)';
+                }
+            });
+        }
+
+        document.getElementById('formPago')?.addEventListener('submit', function(e) {
+            var selectedOption = selectTarjeta.options[selectTarjeta.selectedIndex];
+            var tipo = selectedOption.getAttribute('data-tipo');
+            var cvv = cvvInput.value;
+
+            if (!selectedOption.value) {
+                e.preventDefault();
+                alert('Por favor selecciona un método de pago');
+                return false;
+            }
+
+            if (tipo === 'Amex') {
+                if (!/^\d{4}$/.test(cvv)) {
+                    e.preventDefault();
+                    alert('American Express requiere un código CID de 4 dígitos');
+                    return false;
+                }
+            } else if (tipo === 'Visa' || tipo === 'Mastercard') {
+                if (!/^\d{3}$/.test(cvv)) {
+                    e.preventDefault();
+                    alert('Visa/Mastercard requieren un CVV de 3 dígitos');
+                    return false;
+                }
+            }
+            return true;
+        });
+    </script>
+}

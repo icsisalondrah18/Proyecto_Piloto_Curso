@@ -1,0 +1,319 @@
+﻿@page
+@model Proyecto_Piloto_Curso.Pages.Admin.GestionUsuariosModel
+
+@{
+    ViewData["Title"] = "Gestionar Usuarios";
+    var usuarioRol = HttpContext.Session.GetString("UsuarioRol");
+}
+
+@if (usuarioRol != "admin")
+{
+    <div class="container mt-5">
+        <div class="alert alert-danger text-center">
+            <h3>Acceso denegado</h3>
+            <p>No tienes permisos para ver esta pagina</p>
+            <a href="/" class="btn btn-primary">Volver al inicio</a>
+        </div>
+    </div>
+
+    return;
+}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1 class="fw-bold" style="color: #093C5D;">
+                Gestion de Usuarios
+            </h1>
+
+            <p class="text-muted">
+                Administra todos los usuarios de la plataforma
+            </p>
+        </div>
+
+        <div>
+            <a href="/Admin/GestionUsuarios"
+               class="btn btn-secondary me-2">
+                Actualizar
+            </a>
+
+            <a href="/Admin/CrearUsuario"
+               class="btn btn-primary">
+                Nuevo Usuario
+            </a>
+        </div>
+
+    </div>
+
+    <!-- ALERTAS -->
+    @if (!string.IsNullOrEmpty(Model.MensajeExito))
+    {
+        <div class="alert alert-success">
+            @Model.MensajeExito
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.MensajeError))
+    {
+        <div class="alert alert-danger">
+            @Model.MensajeError
+        </div>
+    }
+
+    <!-- BUSCADOR CON AUTOCOMPLETADO -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <form method="get"
+                  class="row g-3"
+                  autocomplete="off">
+
+                <div class="col-md-9 position-relative">
+
+                    <input type="text"
+                           id="busquedaInput"
+                           name="busqueda"
+                           class="form-control"
+                           placeholder="Buscar por nombre completo..."
+                           value="@Model.BusquedaActual" />
+
+                    <!-- AUTOCOMPLETE -->
+                    <div id="autocomplete-list"
+                         class="list-group position-absolute w-100 shadow-sm"
+                         style="z-index:1000;">
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <button type="submit"
+                            class="btn btn-primary w-100">
+                        Buscar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- SCRIPT AUTOCOMPLETADO -->
+    <script>
+
+            const usuarios = [
+                @foreach (var usuario in Model.Usuarios)
+                {
+                        <text>"@usuario.nombre",</text>
+                }
+            ];
+
+            const input = document.getElementById("busquedaInput");
+            const autocompleteList = document.getElementById("autocomplete-list");
+
+            input.addEventListener("input", function () {
+
+                const value = this.value.toLowerCase();
+
+                autocompleteList.innerHTML = "";
+
+                if (!value)
+                    return;
+
+                const filtrados = usuarios.filter(u =>
+                    u.toLowerCase().includes(value)
+                );
+
+                filtrados.slice(0, 5).forEach(usuario => {
+
+                    const item = document.createElement("button");
+
+                    item.type = "button";
+
+                    item.classList.add(
+                        "list-group-item",
+                        "list-group-item-action"
+                    );
+
+                    item.textContent = usuario;
+
+                    item.onclick = function () {
+
+                        input.value = usuario;
+
+                        autocompleteList.innerHTML = "";
+
+                    };
+
+                    autocompleteList.appendChild(item);
+
+                });
+
+            });
+
+            document.addEventListener("click", function (e) {
+
+                if (e.target !== input) {
+
+                    autocompleteList.innerHTML = "";
+
+                }
+
+            });
+
+    </script>
+
+    <!-- TABLA -->
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover">
+
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Nombre Completo</th>
+                            <th>Correo</th>
+                            <th>Rol</th>
+                            <th>Fecha Registro</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var usuario in Model.Usuarios)
+                        {
+                            <tr>
+
+                                <td>@usuario.idUsuarios</td>
+
+                                <td>@usuario.username</td>
+
+                                <td>@usuario.nombre</td>
+
+                                <td>@usuario.correo</td>
+
+                                <td>
+
+                                    @if (usuario.rol == "admin")
+                                    {
+                                        <span class="badge bg-danger">
+                                            Administrador
+                                        </span>
+                                    }
+                                    else if (usuario.rol == "docente")
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            Docente
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">
+                                            Estudiante
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+                                    @usuario.fecha_creacion.ToString("dd/MM/yyyy")
+                                </td>
+
+                                <td>
+
+                                    <a href="/Admin/EditarUsuario?id=@usuario.idUsuarios"
+                                       class="btn btn-sm btn-warning">
+                                        Editar
+                                    </a>
+
+                                    <form method="post"
+                                          asp-page-handler="Eliminar"
+                                          style="display:inline"
+                                          onsubmit="return confirm('¿Eliminar este usuario?');">
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@usuario.idUsuarios" />
+
+                                        <button type="submit"
+                                                class="btn btn-sm btn-danger">
+                                            Eliminar
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- PAGINACION -->
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav class="mt-4">
+
+            <ul class="pagination justify-content-center">
+
+                <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+
+                    <a class="page-link"
+                       href="?pagina=@(Model.PaginaActual - 1)&busqueda=@Model.BusquedaActual">
+                        Anterior
+                    </a>
+
+                </li>
+
+                @for (int i = 1; i <= Model.TotalPaginas; i++)
+                {
+                    <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+
+                        <a class="page-link"
+                           href="?pagina=@i&busqueda=@Model.BusquedaActual">
+                            @i
+                        </a>
+
+                    </li>
+                }
+
+                <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+
+                    <a class="page-link"
+                       href="?pagina=@(Model.PaginaActual + 1)&busqueda=@Model.BusquedaActual">
+                        Siguiente
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </nav>
+    }
+
+    <!-- FOOTER -->
+    <div class="text-muted text-center mt-3">
+        Mostrando @Model.Usuarios.Count de @Model.TotalRegistros usuarios
+    </div>
+
+</div>

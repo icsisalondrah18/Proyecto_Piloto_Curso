@@ -1,0 +1,63 @@
+﻿/* Estilos para el contenedor de cursos en el Layout */
+.cursos-container {
+    padding: 40px 0;
+}
+
+.grid-cursos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 25px;
+}
+
+.curso-card {
+    border: 1px solid #d1d7dc;
+    background: #fff;
+    transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+    .curso-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+.curso-img-box {
+    height: 140px;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #a435f0;
+    border-bottom: 1px solid #d1d7dc;
+}
+
+.curso-body {
+    padding: 15px;
+}
+
+.curso-titulo {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+    line-height: 1.2;
+}
+
+.curso-precio {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #2d2f31;
+}
+
+.badge-cat {
+    font-size: 0.7rem;
+    background: #ecefe0;
+    color: #3d3c0a;
+    padding: 3px 8px;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 10px;
+}

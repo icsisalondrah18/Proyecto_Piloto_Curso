@@ -1,0 +1,69 @@
+﻿@page
+@model Proyecto_Piloto_Curso.Pages.Admin.CrearCursoModel
+@{
+    ViewData["Title"] = "Crear Nuevo Curso";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold" style="color: #093C5D;">Crear Nuevo Curso</h1>
+        <a href="/Admin/GestionCursos" class="btn btn-secondary">Volver</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.MensajeExito))
+    {
+        <div class="alert alert-success">@Model.MensajeExito</div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.MensajeError))
+    {
+        <div class="alert alert-danger">@Model.MensajeError</div>
+    }
+
+    <form method="post">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label asp-for="Curso.titulo" class="form-label fw-bold">Titulo del Curso</label>
+                    <input asp-for="Curso.titulo" class="form-control" required />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Curso.descripcion" class="form-label fw-bold">Descripcion</label>
+                    <textarea asp-for="Curso.descripcion" class="form-control" rows="4"></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Curso.precio" class="form-label fw-bold">Precio (USD)</label>
+                        <input asp-for="Curso.precio" class="form-control" type="number" step="0.01" min="0" />
+                        <small class="text-muted">0 = Curso Gratis</small>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Curso.categoria_id" class="form-label fw-bold">Categoria</label>
+                        <select asp-for="Curso.categoria_id" class="form-select" asp-items="Model.CategoriasList">
+                            <option value="">-- Seleccionar --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Curso.docenteId" class="form-label fw-bold">Docente</label>
+                        <select asp-for="Curso.docenteId" class="form-select" asp-items="Model.DocentesList">
+                            <option value="">-- Seleccionar --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-end gap-2">
+            <a href="/Admin/GestionCursos" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Crear Curso</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

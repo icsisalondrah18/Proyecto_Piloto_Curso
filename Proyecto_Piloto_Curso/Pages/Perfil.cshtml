@@ -1,0 +1,43 @@
+﻿@page
+@model Proyecto_Piloto_Curso.Pages.PerfilModel
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0" style="border-radius: 20px;">
+                <div class="card-header bg-transparent border-0 text-center pt-4">
+                    <div class="mb-3">
+                        <i class="bi bi-person-circle" style="font-size: 80px; color: #3B7597;"></i>
+                    </div>
+                    <h2 class="fw-bold" style="color: #093C5D;">@Model.Usuario?.nombre</h2>
+                    <span class="badge bg-primary-custom px-3 py-2">@Model.Usuario?.rol</span>
+                </div>
+                <div class="card-body p-4">
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold text-muted small">Nombre de usuario</label>
+                            <p class="fs-5">@Model.Usuario?.username</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold text-muted small">Correo electrónico</label>
+                            <p class="fs-5">@Model.Usuario?.correo</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold text-muted small">Miembro desde</label>
+                            <p class="fs-5">@Model.Usuario?.fecha_creacion.ToString("dd/MM/yyyy")</p>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="d-grid gap-2">
+                        <a href="/MiAprendizaje" class="btn btn-primary">Ver mi aprendizaje</a>
+                        <a href="/MetodosPago" class="btn btn-outline-primary">Mis métodos de pago</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

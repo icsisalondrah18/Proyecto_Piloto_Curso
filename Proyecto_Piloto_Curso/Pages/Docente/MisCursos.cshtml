@@ -1,0 +1,136 @@
+﻿@page
+@model Proyecto_Piloto_Curso.Pages.Docente.MisCursosModel
+@{
+    ViewData["Title"] = "Mis Cursos";
+}
+
+@if (Model.UsuarioRol != "docente" && Model.UsuarioRol != "admin")
+{
+    <div class="container mt-5">
+        <div class="alert alert-danger text-center">
+            <h3>Acceso denegado</h3>
+            <p>Solo los docentes pueden ver esta página</p>
+            <a href="/" class="btn btn-primary">Volver al inicio</a>
+        </div>
+    </div>
+    return;
+}
+
+<div class="container mt-4">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold" style="color: #093C5D;">Mis Cursos</h1>
+        <p class="lead text-secondary">Bienvenido, @Model.UsuarioNombre</p>
+        <p class="text-muted">Aquí encontrarás los cursos que impartes</p>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white text-center" style="background-color: #093C5D;">
+                <div class="card-body py-3">
+                    <h3>@Model.Cursos.Count</h3>
+                    <h6>Total Cursos</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white text-center" style="background-color: #3B7597;">
+                <div class="card-body py-3">
+                    <h3>@Model.TotalEstudiantes</h3>
+                    <h6>Estudiantes Totales</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white text-center" style="background-color: #2a5a75;">
+                <div class="card-body py-3">
+                    <h3>@Model.TotalModulos</h3>
+                    <h6>Módulos Totales</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white text-center" style="background-color: #e6a017;">
+                <div class="card-body py-3">
+                    <h3>@Model.PromedioCalificaciones.ToString("0.0")</h3>
+                    <h6>Calificación Promedio</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Cursos == null || !Model.Cursos.Any())
+    {
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-info-circle display-4"></i>
+            <h3>Aún no impartes ningún curso</h3>
+            <p>Los cursos que te asignen como docente aparecerán aquí.</p>
+            <a href="/Cursos" class="btn btn-primary mt-3">Explorar catálogo</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var curso in Model.Cursos)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <span class="badge bg-primary-custom mb-2">@curso.CategoriaNavigation?.nombre</span>
+                                <span class="badge bg-secondary">@curso.Modulos.Count módulos</span>
+                            </div>
+                            <h5 class="card-title fw-bold mt-2">@curso.titulo</h5>
+                            <p class="card-text text-muted small">@curso.descripcion</p>
+                            <hr />
+                            <div class="d-flex justify-content-between">
+                                <small><i class="bi bi-people"></i> @curso.Inscripciones.Count estudiantes</small>
+                                <small><i class="bi bi-star text-warning"></i> @curso.CalificacionPromedio.ToString("0.0")</small>
+                            </div>
+                            <div class="mt-3 d-flex gap-2">
+                                <a href="/CursoDetalle?id=@curso.idCursos" class="btn btn-outline-primary btn-sm">Ver curso</a>
+                                <a href="/Docente/EstudiantesCurso?id=@curso.idCursos" class="btn btn-outline-info btn-sm">Ver estudiantes</a>
+                                <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalModulos@(curso.idCursos)">Módulos</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Módulos -->
+                <div class="modal fade" id="modalModulos@(curso.idCursos)" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header" style="background-color: #093C5D;">
+                                <h5 class="modal-title text-white">Módulos - @curso.titulo</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                @if (curso.Modulos.Any())
+                                {
+                                    <div class="list-group">
+                                        @foreach (var modulo in curso.Modulos.OrderBy(m => m.orden))
+                                        {
+                                            <div class="list-group-item">
+                                                <strong>Módulo @modulo.orden:</strong> @modulo.titulo
+                                                <br />
+                                                <small class="text-muted">
+                                                    Tipo: @modulo.tipo_contenido | Duración: @modulo.duracion min
+                                                </small>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="text-muted">Este curso aún no tiene módulos</p>
+                                }
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,69 @@
+﻿@page
+@model Proyecto_Piloto_Curso.Pages.Admin.CrearUsuarioModel
+@{
+    ViewData["Title"] = "Crear Nuevo Usuario";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold" style="color: #093C5D;">Crear Nuevo Usuario</h1>
+        <a href="/Admin/GestionUsuarios" class="btn btn-secondary">Volver</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.MensajeExito))
+    {
+        <div class="alert alert-success">@Model.MensajeExito</div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.MensajeError))
+    {
+        <div class="alert alert-danger">@Model.MensajeError</div>
+    }
+
+    <form method="post">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NuevoUsuario.username" class="form-label fw-bold">Nombre de usuario</label>
+                        <input asp-for="NuevoUsuario.username" class="form-control" required />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NuevoUsuario.nombre" class="form-label fw-bold">Nombre completo</label>
+                        <input asp-for="NuevoUsuario.nombre" class="form-control" required />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NuevoUsuario.correo" class="form-label fw-bold">Correo electronico</label>
+                        <input asp-for="NuevoUsuario.correo" class="form-control" type="email" required />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NuevoUsuario.contrasena" class="form-label fw-bold">Contraseña</label>
+                        <input asp-for="NuevoUsuario.contrasena" class="form-control" type="password" required />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NuevoUsuario.rol" class="form-label fw-bold">Rol</label>
+                        <select asp-for="NuevoUsuario.rol" class="form-select">
+                            <option value="estudiante">Estudiante</option>
+                            <option value="docente">Docente</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-end gap-2">
+            <a href="/Admin/GestionUsuarios" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Crear Usuario</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,199 @@
+﻿@page
+@model Proyecto_Piloto_Curso.Pages.MetodosPagoModel
+@{
+    ViewData["Title"] = "Métodos de Pago";
+}
+
+@if (!Model.EstaLogueado)
+{
+    <div class="container mt-5">
+        <div class="alert alert-danger text-center">
+            <h3>Acceso denegado</h3>
+            <p>Debes iniciar sesión para ver tus métodos de pago</p>
+            <a href="/Login" class="btn btn-primary">Iniciar Sesión</a>
+        </div>
+    </div>
+    return;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold" style="color: #093C5D;">Métodos de Pago</h1>
+            <p class="text-muted">Gestiona tus tarjetas registradas</p>
+        </div>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarTarjeta">
+            Agregar nueva tarjeta
+        </button>
+    </div>
+
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="alert alert-success">@TempData["MensajeExito"]</div>
+    }
+    @if (TempData["MensajeError"] != null)
+    {
+        <div class="alert alert-danger">@TempData["MensajeError"]</div>
+    }
+
+    @if (!Model.Tarjetas.Any())
+    {
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-credit-card-2-front display-4"></i>
+            <h3>No hay métodos de pago registrados</h3>
+            <p>Agrega una tarjeta para comprar cursos</p>
+            <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#modalAgregarTarjeta">
+                Agregar mi primera tarjeta
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var tarjeta in Model.Tarjetas)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-3">
+                                <div>
+                                    @if (tarjeta.tipo_tarjeta == "Visa")
+                                    {
+                                        <i class="bi bi-credit-card-2-front-fill display-6" style="color: #1a5f7a;"></i>
+                                        <span class="ms-2 fw-bold">VISA</span>
+                                    }
+                                    else if (tarjeta.tipo_tarjeta == "Mastercard")
+                                    {
+                                        <i class="bi bi-credit-card-2-front-fill display-6" style="color: #cc0f0f;"></i>
+                                        <span class="ms-2 fw-bold">MASTERCARD</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-credit-card-2-front-fill display-6" style="color: #2d6a4f;"></i>
+                                        <span class="ms-2 fw-bold">AMERICAN EXPRESS</span>
+                                    }
+                                </div>
+                                <span class="badge bg-secondary">**** @tarjeta.numero_tarjeta?.Substring(tarjeta.numero_tarjeta.Length - 4)</span>
+                            </div>
+                            <h6 class="fw-bold">@tarjeta.nombre_titular</h6>
+                            <p class="text-muted small">Válida hasta: @tarjeta.fecha_expiracion</p>
+                            <hr />
+                            <form method="post" asp-page-handler="Eliminar" onsubmit="return confirm('¿Eliminar esta tarjeta?')">
+                                <input type="hidden" name="id" value="@tarjeta.idTarjeta" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100">Eliminar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Modal Agregar Tarjeta -->
+<div class="modal fade" id="modalAgregarTarjeta" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Agregar" id="formTarjeta">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white">Agregar método de pago</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="alert alert-info small">Los datos son simulados. No se realizarán cargos reales.</div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tipo de tarjeta</label>
+                        <select name="tipo_tarjeta" id="tipoTarjeta" class="form-select" required>
+                            <option value="">-- Seleccione --</option>
+                            <option value="Visa">Visa (16 dígitos - CVV 3 dígitos)</option>
+                            <option value="Mastercard">Mastercard (16 dígitos - CVV 3 dígitos)</option>
+                            <option value="Amex">American Express (15 dígitos - CVV 4 dígitos)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Número de tarjeta</label>
+                        <input type="text" id="numeroTarjeta" name="numero_tarjeta" class="form-control"
+                               placeholder="Ej: 4000 1234 5678 9010" maxlength="19" required />
+                        <small class="text-muted" id="formatoHint">Visa/Mastercard: 16 dígitos</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nombre en la tarjeta</label>
+                        <input type="text" name="nombre_titular" class="form-control" placeholder="JUAN PEREZ GARCIA" required />
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Fecha expiración</label>
+                            <input type="text" name="fecha_expiracion" class="form-control" placeholder="MM/AA" maxlength="5" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold" id="cvvLabel">CVV/CVC</label>
+                            <input type="password" id="cvvInput" name="cvv" class="form-control" placeholder="123" maxlength="3" required />
+                            <small class="text-muted" id="cvvHint">Código de 3 dígitos (reverso)</small>
+                        </div>
+                    </div>
+                    
+                    <hr />
+                    <div class="form-check">
+                        <input type="checkbox" name="guardar_tarjeta" class="form-check-input" id="guardarTarjeta" checked />
+                        <label class="form-check-label fw-bold" for="guardarTarjeta">Esta tarjeta se guardará en tu cuenta</label>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar tarjeta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const tipoTarjeta = document.getElementById('tipoTarjeta');
+        const numeroTarjeta = document.getElementById('numeroTarjeta');
+        const cvvInput = document.getElementById('cvvInput');
+        const formatoHint = document.getElementById('formatoHint');
+        const cvvHint = document.getElementById('cvvHint');
+        const cvvLabel = document.getElementById('cvvLabel');
+
+        tipoTarjeta.addEventListener('change', function() {
+            if (this.value === 'Amex') {
+                formatoHint.innerHTML = 'American Express: 15 dígitos';
+                cvvHint.innerHTML = 'Código de 4 dígitos (frente de la tarjeta)';
+                cvvLabel.innerHTML = 'CID (4 dígitos)';
+                cvvInput.maxLength = 4;
+                cvvInput.placeholder = '1234';
+                numeroTarjeta.maxLength = 17;
+                numeroTarjeta.placeholder = '3712 123456 78901';
+            } else {
+                formatoHint.innerHTML = 'Visa/Mastercard: 16 dígitos';
+                cvvHint.innerHTML = 'Código de 3 dígitos (reverso)';
+                cvvLabel.innerHTML = 'CVV (3 dígitos)';
+                cvvInput.maxLength = 3;
+                cvvInput.placeholder = '123';
+                numeroTarjeta.maxLength = 19;
+                numeroTarjeta.placeholder = '4000 1234 5678 9010';
+            }
+        });
+
+        numeroTarjeta.addEventListener('input', function(e) {
+            let value = this.value.replace(/\D/g, '');
+            const tipo = tipoTarjeta.value;
+            
+            if (tipo === 'Amex') {
+                if (value.length > 4) {
+                    value = value.substring(0, 4) + ' ' + value.substring(4, 10) + ' ' + value.substring(10, 15);
+                }
+            } else {
+                if (value.length > 4) {
+                    value = value.substring(0, 4) + ' ' + value.substring(4, 8) + ' ' + value.substring(8, 12) + ' ' + value.substring(12, 16);
+                }
+            }
+            this.value = value.trim();
+        });
+    </script>
+}
