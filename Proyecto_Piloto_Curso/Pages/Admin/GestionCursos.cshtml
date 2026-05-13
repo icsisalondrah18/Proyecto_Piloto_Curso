@@ -71,7 +71,7 @@
                                 <td>@curso.idCursos</td>
                                 <td>@curso.titulo</td>
                                 <td>@(curso.CategoriaNavigation?.nombre ?? "Sin categoria")</td>
-                                <td>@(curso.precio == 0 ? "Gratis" : curso.precio.ToString("C"))</td>
+                                <td class="precio-curso">@(curso.precio == 0 ? "Gratis" : curso.precio.ToUSD())</td>
                                 <td>@(curso.DocenteNavigation?.UsuarioNavigation?.nombre ?? "Sin docente")</td>
                                 <td>
                                     <a href="/Admin/EditarCurso?id=@curso.idCursos" class="btn btn-sm btn-warning">Editar</a>
